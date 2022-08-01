@@ -8,6 +8,6 @@ namespace PlatformService.Data
 
         Task CreateAsync(Platform platform);
         Task<Platform?> GetByIdAsync(int id);
-        Task<IEnumerable<Platform>> GetAll();
+        Task<IEnumerable<Platform>> GetAllAsync();
     }
 }

@@ -18,7 +18,7 @@ namespace PlatformService.Data
             await _context.Platforms.AddAsync(platform);
         }
 
-        public async Task<IEnumerable<Platform>> GetAll()
+        public async Task<IEnumerable<Platform>> GetAllAsync()
             => await _context.Platforms.ToListAsync();
 
         public async Task<Platform?> GetByIdAsync(int id)
