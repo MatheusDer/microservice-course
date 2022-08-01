@@ -1,7 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using PlatformService.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase("InMem"));
 
 var app = builder.Build();
 
