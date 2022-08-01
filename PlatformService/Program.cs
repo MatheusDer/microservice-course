@@ -8,6 +8,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase("InMem"));
 
+builder.Services.AddScoped<IPlatformRepo, PlatformRepo>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
