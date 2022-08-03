@@ -12,6 +12,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase("InMem"));
 
+builder.Services.AddTransient<HttpClient>();
+
 builder.Services.AddScoped<IPlatformRepo, PlatformRepo>();
 builder.Services.AddScoped<ICommandDataClient, HttpCommandDataClient>();
 
@@ -23,6 +25,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    Console.WriteLine($"--> CommandService endpoint {app.Configuration["CommandService"]}");
 }
 
 app.UseHttpsRedirection();
@@ -47,7 +51,12 @@ app.MapGet("api/v1/platforms/{id}", async (IPlatformRepo repo, IMapper mapper, i
     return Results.Ok(mapper.Map<PlatformReadDto>(platform));
 });
 
-app.MapPost("api/v1/platforms", async (IPlatformRepo repo, IMapper mapper, PlatformCreateDto createDto) =>
+app.MapPost("api/v1/platforms", async
+(
+    IPlatformRepo repo,
+    IMapper mapper, PlatformCreateDto createDto,
+    ICommandDataClient commandDataClient
+) =>
 {
     var platform = mapper.Map<Platform>(createDto);
 
@@ -55,6 +64,15 @@ app.MapPost("api/v1/platforms", async (IPlatformRepo repo, IMapper mapper, Platf
     repo.SaveChanges();
 
     var readDto = mapper.Map<PlatformReadDto>(platform);
+
+    try
+    {
+        await commandDataClient.SendPlatformToCommand(readDto);
+    }
+    catch (Exception ex)
+    {
+        Console.Write($"--> Could not send Synchronously: {ex.Message}");
+    }
 
     return Results.Created($"api/v1/platforms{readDto.Id}", readDto);
 });
