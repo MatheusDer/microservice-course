@@ -11,6 +11,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+#region PLATFORM
+app.MapPost("api/v1/c/platforms", () =>
+{
+    Console.WriteLine("--> Inbound POST # Command Service");
+
+    return Results.Ok("Inbound test from Platforms Endpoint");
+});
+#endregion
+
+#region COMMAND
+#endregion
+
 app.UseHttpsRedirection();
 
 app.Run();
