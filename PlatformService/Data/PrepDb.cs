@@ -20,7 +20,7 @@ namespace PlatformService.Data
                 return;
             }
 
-            Console.Write("--> Seeding data...");
+            Console.WriteLine("--> Seeding data...");
 
             context.Platforms.AddRange(
                 new Platform { Name = ".NET", Publisher = "Microsoft", Cost = "Free" },
