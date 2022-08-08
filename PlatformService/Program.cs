@@ -21,12 +21,12 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
+Console.WriteLine($"--> CommandService endpoint {app.Configuration["CommandService"]}");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
-    Console.WriteLine($"--> CommandService endpoint {app.Configuration["CommandService"]}");
 }
 
 app.UseHttpsRedirection();
