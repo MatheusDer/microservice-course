@@ -23,6 +23,6 @@ app.MapPost("api/v1/c/platforms", () =>
 #region COMMAND
 #endregion
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.Run();
