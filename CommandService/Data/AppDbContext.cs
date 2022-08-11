@@ -1,3 +1,5 @@
+#nullable disable
+
 using CommandService.Models;
 using Microsoft.EntityFrameworkCore;
 
