@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using PlatformService.AsyncDataServices;
 using PlatformService.Data;
 using PlatformService.Dtos;
 using PlatformService.Models;
@@ -14,6 +15,8 @@ builder.Services.AddTransient<HttpClient>();
 
 builder.Services.AddScoped<IPlatformRepo, PlatformRepo>();
 builder.Services.AddScoped<ICommandDataClient, HttpCommandDataClient>();
+
+builder.Services.AddSingleton<IMessageBusClient, RabbitMQBusClient>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -66,7 +69,8 @@ app.MapPost("api/v1/platforms", async
 (
     IPlatformRepo repo,
     IMapper mapper, PlatformCreateDto createDto,
-    ICommandDataClient commandDataClient
+    ICommandDataClient commandDataClient,
+    IMessageBusClient messageBusClient
 ) =>
 {
     var platform = mapper.Map<Platform>(createDto);
@@ -76,13 +80,26 @@ app.MapPost("api/v1/platforms", async
 
     var readDto = mapper.Map<PlatformReadDto>(platform);
 
+    //Sync
     try
     {
         await commandDataClient.SendPlatformToCommand(readDto);
     }
     catch (Exception ex)
     {
-        Console.Write($"--> Could not send Synchronously: {ex.Message}");
+        Console.WriteLine($"--> Could not send Synchronously: {ex.Message}");
+    }
+
+    //Async
+    try
+    {
+        var platformPublishedDto = mapper.Map<PlatformPublishedDto>(readDto);
+        platformPublishedDto.Event = "Platform_Published";
+        messageBusClient.PublishNewPlatform(platformPublishedDto);
+    }
+    catch (Exception ex)
+    {
+        Console.Write($"--> Could not send Asynchronously: {ex.Message}");
     }
 
     return Results.Created($"api/v1/platforms{readDto.Id}", readDto);
